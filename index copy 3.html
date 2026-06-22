@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Semântico</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,700&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── TOKENS ──────────────────────────────────────────── */
+    :root {
+      --bg:         #111110;
+      --surface:    #1c1c1a;
+      --surface2:   #252523;
+      --border:     #2e2e2b;
+      --text:       #e8e4da;
+      --text-dim:   #7a7770;
+      --text-mid:   #a09c95;
+      --gold:       #d4a84b;
+      --hot:        #e05c3a;
+      --warm:       #e07c3a;
+      --mild:       #d4a84b;
+      --cool:       #5b8fc9;
+      --cold:       #3a6fbf;
+      --green:      #4caf78;
+      --radius:     6px;
+      --mono: 'DM Mono', monospace;
+      --serif: 'Playfair Display', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* ─── HEADER ──────────────────────────────────────────── */
+    header {
+      width: 100%;
+      max-width: 620px;
+      padding: 3rem 1.5rem 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      text-align: center;
+    }
+
+    .eyebrow {
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .eyebrow::before,
+    .eyebrow::after {
+      content: '✦';
+      font-size: 0.5rem;
+      opacity: 0.5;
+    }
+
+    .logo {
+      font-family: var(--serif);
+      font-size: clamp(2.6rem, 8vw, 3.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .logo em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .description {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      line-height: 1.6;
+      max-width: 380px;
+      margin-top: 0.2rem;
+    }
+
+    /* ─── LEGEND ──────────────────────────────────────────── */
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.25rem;
+      justify-content: center;
+      margin-top: 1.2rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.75rem;
+      color: var(--text-mid);
+      font-family: var(--mono);
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ─── DIVIDER ─────────────────────────────────────────── */
+    .hairline {
+      width: 100%;
+      max-width: 620px;
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0 0;
+    }
+
+    /* ─── MAIN ────────────────────────────────────────────── */
+    main {
+      width: 100%;
+      max-width: 620px;
+      padding: 1.75rem 1.5rem 5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ─── WIN BANNER ──────────────────────────────────────── */
+    #winBanner {
+      display: none;
+      padding: 1.2rem 1.4rem;
+      background: linear-gradient(135deg, #1a3d2a 0%, #1f4a32 100%);
+      border: 1px solid #2d6b43;
+      color: var(--green);
+      border-radius: var(--radius);
+      font-family: var(--serif);
+      font-size: 1.4rem;
+      font-style: italic;
+      text-align: center;
+      animation: slideIn 0.35s ease-out;
+    }
+
+    #winBanner small {
+      display: block;
+      font-family: var(--sans);
+      font-style: normal;
+      font-size: 0.8rem;
+      opacity: 0.75;
+      margin-top: 0.3rem;
+      color: var(--text-mid);
+    }
+
+    /* ─── INPUT AREA ──────────────────────────────────────── */
+    .input-row {
+      display: flex;
+      gap: 0.6rem;
+    }
+
+    #wordInput {
+      flex: 1;
+      font-family: var(--mono);
+      font-size: 0.95rem;
+      padding: 0.75rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+      letter-spacing: 0.04em;
+    }
+
+    #wordInput:focus { border-color: var(--gold); }
+    #wordInput::placeholder { color: var(--text-dim); }
+
+    #submitBtn {
+      padding: 0.75rem 1.4rem;
+      background: var(--gold);
+      color: #111110;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.08s;
+      white-space: nowrap;
+      text-transform: uppercase;
+    }
+
+    #submitBtn:hover  { background: #e0b856; }
+    #submitBtn:active { transform: scale(0.97); }
+    #submitBtn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+    /* ─── MESSAGE ─────────────────────────────────────────── */
+    #message {
+      font-size: 0.8rem;
+      color: var(--hot);
+      min-height: 1.1rem;
+      font-family: var(--mono);
+    }
+
+    /* ─── ATTEMPT COUNT ───────────────────────────────────── */
+    #attemptCount {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      font-family: var(--mono);
+      text-align: right;
+    }
+
+    /* ─── GUESSES TABLE ───────────────────────────────────── */
+    .guesses-header {
+      display: grid;
+      grid-template-columns: 2fr 0.8fr 1.6fr;
+      gap: 0.5rem;
+      padding: 0 0.6rem 0.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .col-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .col-label:not(:first-child) { text-align: center; }
+
+    #guessList {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .guess-row {
+      display: grid;
+      grid-template-columns: 2fr 0.8fr 1.6fr;
+      gap: 0.5rem;
+      align-items: center;
+      padding: 0.55rem 0.6rem;
+      border-radius: var(--radius);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      animation: slideIn 0.2s ease-out;
+      transition: border-color 0.2s;
+    }
+
+    .guess-row:hover { border-color: var(--border); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .guess-word {
+      font-family: var(--mono);
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--text);
+    }
+
+    .guess-rank {
+      font-family: var(--mono);
+      font-size: 0.85rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    .guess-bar-wrap {
+      height: 7px;
+      background: var(--surface2);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+
+    .guess-bar {
+      height: 100%;
+      border-radius: 99px;
+      transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    }
+
+    /* ─── SPINNER ─────────────────────────────────────────── */
+    .spinner {
+      display: inline-block;
+      width: 13px; height: 13px;
+      border: 2px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
+      vertical-align: middle;
+      margin-left: 6px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── DEV NOTE ────────────────────────────────────────── */
+    .dev-note {
+      font-size: 0.72rem;
+      color: var(--text-mid);
+      font-family: var(--mono);
+      background: var(--surface);
+      border-radius: var(--radius);
+      padding: 0.6rem 0.9rem;
+      line-height: 1.7;
+      border-left: 3px solid var(--gold);
+    }
+
+    .dev-note strong { color: var(--text); }
+
+    @media (max-width: 480px) {
+      .logo { font-size: 2.2rem; }
+      .input-row { flex-direction: column; }
+      .legend { gap: 0.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     ██  CONFIGURAÇÃO  ██
+     Edite apenas SECRET_WORD para trocar a palavra do dia.
+     A API Key fica segura no Cloudflare Worker.
+     ════════════════════════════════════════════════════════ -->
+<script>
+  // ┌──────────────────────────────────────────────────────┐
+  // │  URL do seu Cloudflare Worker (proxy seguro)         │
+  // └──────────────────────────────────────────────────────┘
+  const WORKER_URL = "https://lucky-bush-cb4f.cloudflare-backtalk965.workers.dev/";
+
+  // ┌──────────────────────────────────────────────────────┐
+  // │  Palavra secreta que o jogador deve adivinhar        │
+  // └──────────────────────────────────────────────────────┘
+  const SECRET_WORD = "gato";
+</script>
+<!-- ════════════════════════════════════════════════════════ -->
+
+<header>
+  <p class="eyebrow">Desafio de hoje</p>
+  <h1 class="logo">Sem<em>ântico</em></h1>
+  <p class="description">Digite palavras. Quanto menor o número, mais próxima da resposta secreta.</p>
+
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#e05c3a;"></div>
+      quente (1–100)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#d4a84b;"></div>
+      morno (101–400)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#5b8fc9;"></div>
+      frio (401–700)
+    </div>
+    <div class="legend-item">
+      <div class="legend-dot" style="background:#3a6fbf; box-shadow: 0 0 0 2px #1c2f50;"></div>
+      <div class="legend-dot" style="background:#2a5099; margin-left:-6px;"></div>
+      congelando (701+)
+    </div>
+  </div>
+</header>
+
+<div class="hairline"></div>
+
+<main>
+
+  <!-- Dev note (oculto — worker configurado) -->
+  <div class="dev-note" id="devNote" style="display:none;"></div>
+
+  <!-- Win banner -->
+  <div id="winBanner">
+    🎉 Acertou: <em id="winWord"></em>!
+    <small id="winAttempts"></small>
+  </div>
+
+  <!-- Input -->
+  <div class="input-row">
+    <input
+      id="wordInput"
+      type="text"
+      placeholder="digite uma palavra..."
+      autocomplete="off"
+      autocorrect="off"
+      spellcheck="false"
+    />
+    <button id="submitBtn">Tentar</button>
+  </div>
+
+  <div id="message"></div>
+  <div id="attemptCount"></div>
+
+  <!-- Guesses list -->
+  <div id="guessesSection" style="display:none;">
+    <div class="guesses-header">
+      <span class="col-label">Palavra</span>
+      <span class="col-label">Posição</span>
+      <span class="col-label">Proximidade</span>
+    </div>
+    <div id="guessList"></div>
+  </div>
+
+</main>
+
+<script>
+  /* ─── Estado ─────────────────────────────────────────── */
+  let guesses  = [];
+  let attempts = 0;
+  let gameOver = false;
+
+  /* ─── DOM ────────────────────────────────────────────── */
+  const input        = document.getElementById('wordInput');
+  const btn          = document.getElementById('submitBtn');
+  const msgEl        = document.getElementById('message');
+  const listEl       = document.getElementById('guessList');
+  const sectionEl    = document.getElementById('guessesSection');
+  const winBanner    = document.getElementById('winBanner');
+  const winWord      = document.getElementById('winWord');
+  const winAttempts  = document.getElementById('winAttempts');
+  const attemptCount = document.getElementById('attemptCount');
+  const devNote      = document.getElementById('devNote');
+
+  // worker configurado — devNote já oculto no HTML
+
+  /* ─── Eventos ────────────────────────────────────────── */
+  btn.addEventListener('click', handleGuess);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') handleGuess(); });
+
+  /* ─── Fluxo principal ────────────────────────────────── */
+  async function handleGuess() {
+    if (gameOver) return;
+
+    const word = input.value.trim().toLowerCase().replace(/[^a-záéíóúàâêôãõüçñ]/gi, '');
+    if (!word) { showMsg('Digite uma palavra válida.'); return; }
+
+    if (guesses.some(g => g.word === word)) {
+      showMsg(`"${word}" já foi tentada.`);
+      return;
+    }
+
+    btn.disabled = true;
+    showMsg('Consultando<span class="spinner"></span>');
+    input.value = '';
+
+    try {
+      const rank = await getRank(word);
+      attempts++;
+      guesses.push({ word, rank });
+      guesses.sort((a, b) => a.rank - b.rank);
+      renderGuesses();
+      updateAttemptCount();
+      showMsg('');
+      if (rank === 1) endGame(word);
+    } catch (err) {
+      showMsg('Erro ao consultar a API. Verifique sua chave.');
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      input.focus();
+    }
+  }
+
+  /* ─── API ────────────────────────────────────────────── */
+  async function getRank(guessedWord) {
+    const prompt = `Você é um avaliador de similaridade semântica para um jogo de palavras em português brasileiro.
+
+Palavra secreta: "${SECRET_WORD}"
+Palavra do jogador: "${guessedWord}"
+
+Sua tarefa é retornar um número inteiro de 1 a 1000 representando a distância semântica entre as duas palavras.
+
+Use esta escala como referência absoluta e rigorosa:
+
+1        → palavra idêntica ou sinônimo perfeito (ex: "mar" para "oceano")
+2–10     → campo semântico direto e muito próximo (ex: "onda", "praia", "maré" para "oceano")
+11–50    → relacionado de forma clara e direta (ex: "peixe", "navio", "mergulho" para "oceano")
+51–150   → associação indireta mas reconhecível (ex: "sal", "azul", "horizonte" para "oceano")
+151–350  → relação fraca ou contextual (ex: "viagem", "profundo", "água" para "oceano")
+351–600  → conexão distante ou metafórica (ex: "vento", "aventura", "natureza" para "oceano")
+601–800  → quase sem relação semântica (ex: "livro", "cidade", "árvore" para "oceano")
+801–1000 → sem nenhuma relação (ex: "teclado", "pizza", "contrato" para "oceano")
+
+Regras importantes:
+- Seja consistente: palavras do mesmo campo semântico devem ter ranks próximos entre si
+- Considere: sinônimos, hiperônimos, hipônimos, meronímia, associações culturais e contexto de uso em português
+- Não penalize palavras por serem de classes gramaticais diferentes (substantivo vs adjetivo)
+- A palavra secreta atual é "${SECRET_WORD}" — calibre todos os julgamentos em relação a ela
+
+Responda APENAS com o número inteiro, sem texto, sem pontuação, sem explicação.`;
+
+    const res = await fetch(WORKER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 16,
+        temperature: 0,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || `HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    const raw  = data.content?.[0]?.text?.trim() ?? '';
+    const rank = parseInt(raw, 10);
+
+    if (isNaN(rank) || rank < 1 || rank > 1000)
+      throw new Error(`Resposta inesperada da API: "${raw}"`);
+
+    return rank;
+  }
+
+  /* ─── Render ─────────────────────────────────────────── */
+  function renderGuesses() {
+    sectionEl.style.display = 'block';
+    listEl.innerHTML = '';
+
+    guesses.forEach(({ word, rank }) => {
+      const { color, pct } = rankToVisual(rank);
+      const row = document.createElement('div');
+      row.className = 'guess-row';
+      row.innerHTML = `
+        <span class="guess-word">${word}</span>
+        <span class="guess-rank" style="color:${color}">${rank === 1 ? '🎯 1' : rank}</span>
+        <div class="guess-bar-wrap">
+          <div class="guess-bar" style="width:${pct}%; background:${color};"></div>
+        </div>
+      `;
+      listEl.appendChild(row);
+    });
+  }
+
+  /* ─── Rank → visual ──────────────────────────────────── */
+  function rankToVisual(rank) {
+    const pct = Math.max(2, Math.round((1 - (rank - 1) / 999) * 100));
+    let color;
+    if      (rank === 1)   color = '#4caf78';
+    else if (rank <= 100)  color = '#e05c3a';
+    else if (rank <= 400)  color = '#d4a84b';
+    else if (rank <= 700)  color = '#5b8fc9';
+    else                   color = '#3a6fbf';
+    return { color, pct };
+  }
+
+  /* ─── Fim de jogo ────────────────────────────────────── */
+  function endGame(word) {
+    gameOver = true;
+    input.disabled = btn.disabled = true;
+    winWord.textContent = word;
+    winAttempts.textContent = `${attempts} tentativa${attempts !== 1 ? 's' : ''}`;
+    winBanner.style.display = 'block';
+    showMsg('');
+  }
+
+  function showMsg(html) { msgEl.innerHTML = html; }
+  function updateAttemptCount() {
+    attemptCount.textContent = `${attempts} tentativa${attempts !== 1 ? 's' : ''}`;
+  }
+</script>
+</body>
+</html>
